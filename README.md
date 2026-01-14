@@ -93,6 +93,35 @@ npm run images:batch
 
 Правила для роботи з проектом через Cursor IDE знаходяться в файлі [`.cursorrules`](.cursorrules). Правила посилаються на документацію в `doc/` замість її дублювання.
 
+## 🚀 GitHub Actions & Pages
+
+Проект використовує GitHub Actions для автоматизації процесу розробки та деплою:
+
+### 📋 Доступні Workflows
+
+#### **1. Deploy to GitHub Pages** (`deploy.yml`)
+Автоматично публікує презентацію на GitHub Pages при push в `main` гілку.
+
+#### **2. Preview PR** (`preview.yml`)
+Створює preview deployment для pull requests (якщо налаштовано Netlify).
+
+#### **3. Quality Check** (`quality-check.yml`)
+Перевіряє якість коду, будує презентацію та завантажує артефакти.
+
+### 🌐 Демо презентації
+
+Після деплою презентація буде доступна на: **https://[username].github.io/[repo-name]**
+
+### 🔧 Налаштування GitHub Pages
+
+1. **Увімкнути Pages** в Settings → Pages
+2. **Вибрати джерело:** "GitHub Actions"
+3. **Workflow** автоматично деплоїть при push в main
+
+### 📊 Статус CI/CD
+
+Перевіряйте статус workflows в закладці **Actions** репозиторію.
+
 ## 📖 Зміст презентації
 
 Презентація містить 27 слайдів, що охоплюють:
