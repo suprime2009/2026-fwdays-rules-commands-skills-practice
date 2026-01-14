@@ -1,5 +1,8 @@
 # Презентація: Правила, команди та навички для Агентних IDE
 
+[![Deploy to GitHub Pages](https://github.com/suprime2009/2026-fwdays-rules-commands-skills-practice/actions/workflows/deploy.yml/badge.svg)](https://github.com/suprime2009/2026-fwdays-rules-commands-skills-practice/actions/workflows/deploy.yml)
+[![Quality Check](https://github.com/suprime2009/2026-fwdays-rules-commands-skills-practice/actions/workflows/quality-check.yml/badge.svg)](https://github.com/suprime2009/2026-fwdays-rules-commands-skills-practice/actions/workflows/quality-check.yml)
+
 Презентація створена за допомогою [Slidev](https://sli.dev/) на тему "Правила, команди та навички для Агентних IDE".
 
 ## ✅ Статус
@@ -102,10 +105,13 @@ npm run images:batch
 #### **1. Deploy to GitHub Pages** (`deploy.yml`)
 Автоматично публікує презентацію на GitHub Pages при push в `main` гілку.
 
-#### **2. Preview PR** (`preview.yml`)
+#### **2. Deploy PDF Export** (`deploy-pdf.yml`)
+Генерує PDF та зображення презентації, створює GitHub releases з assets.
+
+#### **3. Preview PR** (`preview.yml`)
 Створює preview deployment для pull requests (якщо налаштовано Netlify).
 
-#### **3. Quality Check** (`quality-check.yml`)
+#### **4. Quality Check** (`quality-check.yml`)
 Перевіряє якість коду, будує презентацію та завантажує артефакти.
 
 ### 🌐 Демо презентації
@@ -118,9 +124,32 @@ npm run images:batch
 2. **Вибрати джерело:** "GitHub Actions"
 3. **Workflow** автоматично деплоїть при push в main
 
+### 📄 PDF Export та Releases
+
+Для створення PDF версії презентації та інших експортів:
+
+#### **Автоматичний експорт:**
+```bash
+# Запустити PDF експорт вручну
+# Перейти до Actions → Deploy PDF Export → Run workflow
+```
+
+#### **Що генерується:**
+- **presentation.pdf** - повна PDF версія презентації
+- **title-slide.png** - знімок титульного слайду
+- **presentation.html** - автономна HTML версія
+- **presentation-assets.tar.gz** - архів з усіма assets
+
 ### 📊 Статус CI/CD
 
 Перевіряйте статус workflows в закладці **Actions** репозиторію.
+
+### 📦 Releases
+
+При створенні release через **Deploy PDF Export** workflow автоматично:
+- Генеруються всі експортні файли
+- Створюється GitHub release з assets
+- Додається опис з статистикою презентації
 
 ## 📖 Зміст презентації
 

@@ -1,0 +1,162 @@
+# Deploy PDF Export to GitHub Releases
+# This workflow generates PDF exports and creates GitHub releases
+
+name: Deploy PDF Export
+
+on:
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+      prerelease:
+        description: 'Mark as pre-release'
+        type: boolean
+        default: false
+
+  # Also run on releases
+  release:
+    types: [published]
+
+jobs:
+  generate-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright for PDF export
+        run: npx playwright install chromium
+
+      - name: Validate project
+        run: npm run validate
+
+      - name: Start presentation server
+        run: |
+          npm run dev &
+          SERVER_PID=$!
+          echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+          # Wait for server to start
+          timeout 30 bash -c 'until curl -f http://localhost:3030 > /dev/null 2>&1; do sleep 1; done'
+
+      - name: Generate PDF
+        run: |
+          # Use playwright to generate PDF from the running server
+          npx playwright chromium --headless --no-sandbox --disable-dev-shm-usage \
+            --args="--disable-web-security --disable-features=VizDisplayCompositor" \
+            --script="const { chromium } = require('playwright'); (async () => {
+              const browser = await chromium.launch();
+              const page = await browser.newPage();
+              await page.goto('http://localhost:3030');
+              await page.waitForTimeout(2000); // Wait for presentation to load
+              await page.pdf({ path: 'presentation.pdf', format: 'A4', printBackground: true });
+              await browser.close();
+              console.log('PDF generated successfully');
+            })()"
+
+      - name: Generate PNG screenshots
+        run: |
+          # Generate screenshots of key slides
+          npx playwright chromium --headless --no-sandbox --disable-dev-shm-usage \
+            --args="--disable-web-security --disable-features=VizDisplayCompositor" \
+            --script="const { chromium } = require('playwright'); (async () => {
+              const browser = await chromium.launch();
+              const page = await browser.newPage();
+              await page.setViewportSize({ width: 1920, height: 1080 });
+
+              await page.goto('http://localhost:3030');
+
+              // Wait for presentation to load
+              await page.waitForTimeout(3000);
+
+              // Take screenshot of title slide
+              await page.screenshot({ path: 'title-slide.png', fullPage: true });
+
+              console.log('Screenshots generated successfully');
+              await browser.close();
+            })()"
+
+      - name: Stop server
+        run: |
+          if [ ! -z "$SERVER_PID" ]; then
+            kill $SERVER_PID || true
+          fi
+
+      - name: Create release archive
+        run: |
+          mkdir -p release-assets
+          cp presentation.pdf release-assets/
+          cp title-slide.png release-assets/
+          cp dist/index.html release-assets/presentation.html
+          cd release-assets
+          tar -czf ../presentation-assets.tar.gz .
+
+      - name: Upload release assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: presentation-assets
+          path: |
+            presentation.pdf
+            title-slide.png
+            presentation-assets.tar.gz
+          retention-days: 30
+
+  create-release:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    needs: generate-pdf
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download assets
+        uses: actions/download-artifact@v4
+        with:
+          name: presentation-assets
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ inputs.version }}
+          name: Presentation Release ${{ inputs.version }}
+          body: |
+            ## 🎨 Presentation Assets
+
+            This release contains the compiled presentation assets for the **"Правила, команди та навички для Агентних IDE"** workshop.
+
+            ### 📁 Assets Included:
+            - **presentation.pdf** - PDF export of the full presentation
+            - **title-slide.png** - Screenshot of the title slide
+            - **presentation.html** - Standalone HTML version
+            - **presentation-assets.tar.gz** - All assets in archive
+
+            ### 🚀 Deployment:
+            - **GitHub Pages**: https://suprime2009.github.io/2026-fwdays-rules-commands-skills-practice/
+            - **Live Presentation**: View with interactive features
+
+            ### 📊 Presentation Stats:
+            - **27 slides** total
+            - **Ukrainian localization** complete
+            - **Interactive elements** included
+            - **OpenAI API integration** examples
+
+            ---
+            *Auto-generated by GitHub Actions*
+          files: |
+            presentation.pdf
+            title-slide.png
+            presentation.html
+          prerelease: ${{ inputs.prerelease }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

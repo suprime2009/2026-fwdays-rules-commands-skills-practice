@@ -49,6 +49,14 @@ jobs:
       - name: Build presentation
         run: npm run build
 
+      - name: Check build output
+        run: |
+          echo "📊 Build statistics:"
+          echo "Files count: $(find dist -type f | wc -l)"
+          echo "Total size: $(du -sh dist | cut -f1)"
+          echo "Main files:"
+          ls -la dist/ | head -10
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
