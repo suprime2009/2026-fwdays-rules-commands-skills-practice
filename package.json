@@ -1,0 +1,60 @@
+{
+  "name": "2026-fwdays-rules-commands-skills-practice",
+  "version": "1.0.0",
+  "description": "Презентація про правила, команди та навички для Агентних IDE",
+  "main": "index.js",
+  "scripts": {
+    "dev": "slidev",
+    "dev:port": "slidev --port 3001",
+    "dev:host": "slidev --host 0.0.0.0",
+    "build": "slidev build",
+    "build:clean": "rm -rf dist && slidev build",
+    "export": "slidev export",
+    "export:pdf": "slidev export --format pdf",
+    "export:png": "slidev export --format png",
+    "preview": "npx serve dist",
+    "check-node": "node -e \"const v=parseInt(process.version.slice(1)); v<18?console.error('❌ Node.js '+process.version+' - потрібно 18+')&&process.exit(1):console.log('✅ Node.js '+process.version+' OK')\"",
+    "check-deps": "npm ls --depth=0",
+    "lint": "echo '🔍 Перевірка Markdown синтаксису...' && npx markdownlint 'slides.md' 'doc/**/*.md' 'README.md' || echo '⚠️  Рекомендації по стилю Markdown'",
+    "validate": "npm run check-node && npm run check-deps && npm run lint",
+    "git:status": "./scripts/git-workflow.sh status",
+    "git:commit": "./scripts/git-workflow.sh commit",
+    "git:push": "./scripts/git-workflow.sh push",
+    "git:branch": "./scripts/git-workflow.sh branch",
+    "git:sync": "./scripts/git-workflow.sh sync",
+    "git:log": "./scripts/git-workflow.sh log",
+    "slide:add": "./scripts/content-manager.sh add-slide",
+    "slide:backup": "./scripts/content-manager.sh backup",
+    "slide:overview": "./scripts/content-manager.sh overview",
+    "slide:stats": "./scripts/content-manager.sh stats",
+    "slide:list": "./scripts/content-manager.sh slides",
+    "docs:update": "./scripts/content-manager.sh update-docs",
+    "docs:check-links": "./scripts/content-manager.sh check-links",
+    "clean": "rm -rf dist backups/* node_modules/.cache",
+    "setup": "npm install && npm run check-node",
+    "deps:check": "npm outdated || echo '✅ Залежності актуальні'",
+    "deps:update": "npm update && npm audit fix",
+    "images:generate": "node scripts/generate-images.js",
+    "images:batch": "node scripts/generate-images.js batch",
+    "test": "npm run validate && echo '✅ Всі перевірки пройдено'"
+  },
+  "dependencies": {
+    "@slidev/cli": "^0.49.0",
+    "@slidev/theme-default": "*"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suprime2009/2026-fwdays-rules-commands-skills-practice.git"
+  },
+  "keywords": [
+    "slidev",
+    "presentation",
+    "agentic-ide",
+    "rules",
+    "commands",
+    "skills"
+  ],
+  "author": "",
+  "license": "ISC"
+}
